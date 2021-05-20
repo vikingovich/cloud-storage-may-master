@@ -24,6 +24,7 @@ public class ClientHandler implements Runnable {
 				}
 				if ("download".equals(command)) {
 					// TODO: 13.05.2021 downloading
+					donwloading(out, in);
 				}
 				if ("exit".equals(command)) {
 					out.writeUTF("DONE");
@@ -59,6 +60,27 @@ public class ClientHandler implements Runnable {
 			fos.close();
 			out.writeUTF("OK");
 		} catch (Exception e) {
+			out.writeUTF("WRONG");
+		}
+	}
+
+	private void donwloading(DataOutputStream out, DataInputStream in) throws IOException{
+		try{
+			File file = new File("client/" + in.readUTF());
+			if (!file.exists()){
+				file.createNewFile();
+			}
+			FileOutputStream fos = new FileOutputStream(file);
+			long size = in.readLong();
+			byte[] buffer = new byte[8 * 1024];
+			for (int i = 0; i < (size + (8 * 1024 - 1)) / (8 * 1024); i++) {
+				int read = in.read(buffer);
+				fos.write(buffer, 0, read);
+			}
+			fos.close();
+			out.writeUTF("OK");
+
+		}catch (Exception e){
 			out.writeUTF("WRONG");
 		}
 	}
