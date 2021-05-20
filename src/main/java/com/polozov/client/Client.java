@@ -58,8 +58,37 @@ public class Client extends JFrame {
 	}
 
 	private void getFile(String filename) {
-		// TODO: 13.05.2021 downloading
-	}
+
+			try {
+				File file = new File("server/" + filename);
+				if (!file.exists()) {
+					throw new FileNotFoundException();
+				}
+
+				long fileLength = file.length();
+				FileInputStream fis = new FileInputStream(file);
+
+				out.writeUTF("download");
+				out.writeUTF(filename);
+				out.writeLong(fileLength);
+
+				int read = 0;
+				byte[] buffer = new byte[8 * 1024];
+				while ((read = fis.read(buffer)) != -1) {
+					out.write(buffer, 0, read);
+				}
+
+				out.flush();
+
+				String status = in.readUTF();
+				System.out.println("download status: " + status);
+			} catch (FileNotFoundException e) {
+				System.err.println("File not found - /server/" + filename);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 
 	private void sendFile(String filename) {
 		try {
@@ -96,6 +125,9 @@ public class Client extends JFrame {
 	 * message sending
 	 * @param message String
 	 */
+
+
+
 	private void sendMessage(String message) {
 		try {
 			out.writeUTF(message);
